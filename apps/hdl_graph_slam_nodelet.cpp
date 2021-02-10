@@ -58,7 +58,21 @@
 #include <g2o/edge_se3_priorvec.hpp>
 #include <g2o/edge_se3_priorquat.hpp>
 
+#include <GeographicLib/Geocentric.hpp> 
+#include <GeographicLib/LocalCartesian.hpp> 
+
+
+
+using namespace GeographicLib; 
+
+
+
 namespace hdl_graph_slam {
+
+
+
+
+// used later in code to feed algorithm with ECNF data instead of UTM
 
 class HdlGraphSlamNodelet : public nodelet::Nodelet {
 public:
@@ -318,15 +332,18 @@ private:
       }
 
       // convert (latitude, longitude, altitude) -> (easting, northing, altitude) in UTM coordinate
-      geodesy::UTMPoint utm;
-      geodesy::fromMsg((*closest_gps)->position, utm);
-      Eigen::Vector3d xyz(utm.easting, utm.northing, utm.altitude);
+      Geocentric earth(Constants::WGS84_a(), Constants::WGS84_f());
+      const double lat0 = 50.2779196, lon0 = 18.6857581, h0=279.708; //Gliwice Bojkowska 37 [50.2779196,  18.6857581, 279.708]
+      LocalCartesian proj(lat0, lon0, h0, earth);
+      double X, Y, Z;
+      proj.Forward(lat0, lon0, h0, X, Y, Z); 
+      Eigen::Vector3d xyz(X, Y, Z);
 
       // the first gps data position will be the origin of the map
-      if(!zero_utm) {
-        zero_utm = xyz;
-      }
-      xyz -= (*zero_utm);
+      // if(!zero_utm) {
+      //   zero_utm = xyz;
+      // }
+      // xyz -= (*zero_utm);
 
       keyframe->utm_coord = xyz;
 
