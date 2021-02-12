@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   ndt_omp
   fast_gicp
+  GeographicLib
 )
 catkin_python_setup()
 
@@ -90,6 +91,7 @@ add_library(prefiltering_nodelet apps/prefiltering_nodelet.cpp)
 target_link_libraries(prefiltering_nodelet
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
+  ${GeographicLib_LIBRARIES}
 )
 
 
@@ -141,6 +143,3 @@ catkin_install_python(
     src/${PROJECT_NAME}/map2odom_publisher.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-find_package (GeographicLib REQUIRED)
-    add_executable (program source1.cpp source2.cpp)
-    target_link_libraries (program ${GeographicLib_LIBRARIES}) 
